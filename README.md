@@ -1,4 +1,4 @@
-# Código de Streaming para Telegram
+# Bot do Telegram
 
 Bot do Telegram que entrega, sob demanda, o **código contido no email mais
 recente** de serviços de streaming (Netflix, Disney+, etc.) enviados para sua
@@ -120,7 +120,37 @@ reutilizado/renovado automaticamente depois.
 
 Logs são enviados para stdout, incluindo pedidos autorizados/rejeitados e erros.
 
-## 7. Executar os testes
+## 7. Deploy no servidor (Docker)
+
+Os arquivos sensíveis (`.env`, `token.json`, `credentials.json`) **não** entram
+na imagem (bloqueados no `.dockerignore`): o `.env` é injetado pelo
+`env_file` do compose e os outros dois são montados como volumes em runtime.
+
+1. No servidor: clone o repositório:
+   ```bash
+   git clone https://github.com/Eduardachgs/SendTheCode.git ~/apps/email-telegram-bot
+   cd ~/apps/email-telegram-bot
+   ```
+2. Copie os três arquivos de fora do git e ajuste permissões:
+   ```bash
+   scp .env token.json credentials.json servidor:~/apps/email-telegram-bot
+   chmod 600 .env token.json credentials.json
+   ```
+3. **Importante:** o `token.json` precisa já existir (gerado com navegador,
+   por isso vem da sua máquina). Dentro do container não há browser.
+4. Subir e acompanhar:
+   ```bash
+   docker compose up -d --build
+   docker compose logs -f bot
+   ```
+5. Teste no Telegram (ex.: `hbo`) e depois `docker compose restart` para
+   validar o restart.
+6. Atualizar depois é:
+   ```bash
+   git pull && docker compose up -d --build
+   ```
+
+## 8. Executar os testes
 
 ```bash
 pytest
